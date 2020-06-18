@@ -1,34 +1,12 @@
 <template>
   <div style="height:100%;overflow:auto">
-    <div class="actions rounded p2 m-2 text-right">
-      <router-link
-        :to="'/'+ $route.params.entity+'/new'"
-        tag="div"
-        class="btn btn-info"
-      >{{entity.meta.newbtn.label}}</router-link>
-    </div>
-    <table class="table table-striped" style="direction:rtl;">
-      <thead>
-        <tr>
-          <th
-            class="clickable"
-            scope="col"
-            v-for="(f,n) in entity.sections.__main.fields"
-            :key="n"
-          >{{f.label}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <router-link :to="'/'+$route.params.entity+'/1'" tag="tr" v-for="(d,i) in data" :key="i" class="small clickable">
-          <td v-for="(f,n) in entity.sections.__main.fields" :key="n">{{d[n]}}</td>
-        </router-link>
-      </tbody>
-    </table>
+    <entityList :meta="entity.listPage.meta" :fields="entity.listPage.fields" :data="data" />
   </div>
 </template>
 <style>
 </style>
 <script>
+import entityList from "@/components/entityList.vue";
 export default {
   data() {
     return {
@@ -227,17 +205,24 @@ export default {
       }
     };
   },
+  components: {
+    entityList
+  },
   created() {
   },
+  methods: {
+    
+  },
   computed: {
-    entity() {
-      return JSON.parse(
-        JSON.stringify(this.$root.entities[this.$route.params.entity])
-      );
-    },
     data() {
       return this.testdata[this.$route.params.entity];
+    },
+    entity(){
+      return this.$root.entities[this.$route.params.entity]
     }
+  },
+  watch: {
+
   },
   deactivated() {
     this.$destroy();

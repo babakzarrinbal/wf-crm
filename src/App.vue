@@ -1,5 +1,6 @@
 <template>
   <div id="app" style="widht:100vw;height:100%;" @drop="createNewJson($event.dataTransfer.files)">
+    
     <Header id="header" @openMenu="expandSettings = !expandSettings" />
     <div class="body">
       <transition name="width">
@@ -8,9 +9,10 @@
             <router-link
               v-for="(path,title) in {
                 'داشبرد':'/',
-                'مشتریان':'/customers',
-                'سرویسها':'/services',
-                'دستگاه‌ها':'/devices'
+                'مشتریان':'/entity/customers',
+                'سرویسها':'/entity/services',
+                'دستگاه‌ها':'/entity/devices',
+                'فیلتر‌ها': '/entity/filters'
                 }"
               :key="path"
               @click.stop
@@ -23,28 +25,46 @@
       </transition>
       <div class="maincontent">
         <keep-alive>
+          <transition name="fade-fast" mode="out-in">
           <router-view id="pagecontainer" class="mainrouteview" />
+          </transition>
         </keep-alive>
       </div>
       
     </div>
+    <transition name="fade">
+    <popup v-if="popup.visible" @hide="popup.visible = false" :args="popup.args" />
+    </transition>
   </div>
 </template>
 <script>
 import Header from "./components/header";
+import popup from "./components/popup";
 export default {
   data() {
     return {
+      popup:{
+        visible:false,
+        args:{}
+      },
       expandSettings: true
     };
   },
   components: {
     Header,
+    popup,
   },
   async created() {
+    this.on('popup',(args)=>{
+      this.popup.visible = true;
+      this.popup.args = JSON.parse(JSON.stringify(args))
+    });
   },
-  methods: {},
-  watch: {},
+  methods: {
+  },
+  watch: {
+    popup: { deep: true ,handler(){}}
+  },
   computed: {}
 };
 </script>
@@ -73,6 +93,7 @@ export default {
   }
   .maincontent {
     flex-grow: 1;
+    overflow:auto;
   }
 }
 #nav {

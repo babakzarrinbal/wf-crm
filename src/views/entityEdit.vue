@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <h3 class="header m-3">{{meta.title}}</h3>
     <div class="form container p-0">
       <section
@@ -76,7 +76,7 @@
 export default {
   data() {
     return {
-      window,
+      // window,
       entity: null,
       meta: {},
       data: {},
@@ -89,6 +89,7 @@ export default {
       this.$route.params.id == "new"
         ? entity.meta.title.new
         : entity.meta.title.edit;
+        
     this.copyObject(entity.sections, this.sections);
   },
   mounted(){
@@ -100,11 +101,11 @@ export default {
   methods: {
     copyObject(source, destination) {
       Object.keys(source).forEach(s => {
-        if (typeof s == "object") {
+        if (typeof source[s] == "object") {
           destination[s] = {};
           this.copyObject(source[s], destination[s]);
         } else {
-          destination[s] = JSON.parse(JSON.stringify(source[s]));
+          destination[s] = source[s];
         }
       });
     },

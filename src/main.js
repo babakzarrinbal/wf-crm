@@ -1,6 +1,5 @@
 // my own proto functions
 require("./utils/prototypes");
-import dataCenter from "./utils/dataCenter";
 // bootstrap css
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -20,10 +19,14 @@ import App from "./App.vue";
 import router from "./router";
 
 // adding mixin
+import dataCenter from "./utils/dataCenter";
+const eventBus = new Vue();
 Vue.mixin({
   data: function() {
     return {
       dataCenter,
+      emit: (...args) => eventBus.$emit(...args),
+      on: (...args) => eventBus.$on(...args),
     };
   },
 });
@@ -33,143 +36,137 @@ new Vue({
   data: {
     entities: {
       services: {
-        meta: {
-          title: {
-            new: "سرویس جدید",
-            edit: "تغییر سرویس",
-            list:"لیست سرویسها"
+        schema: {
+          customer: {
+            lable: "اطلاعات مشتری",
+            entity: "customers",
+            type: "relation",
           },
-          newbtn:{
-            label:"ایجاد سرویس جدید"
-          }
+          date: { lable: "تاریخ سرویس", type: "date" },
+          type: { lable: "نوع سرویس", type: "text" },
+          description: { lable: "شرح خدمات", type: "text" },
+          amount: { lable: " مبلغ دریافتی", type: "text" },
+          personel: { lable: "سرویسکار", type: "text" },
         },
-        sections: {
-          cutomer: {
-            label: "مشتری",
-            expanded: true,
-            fields: {
-              name: {
-                label: "نام مشتری",
-                type: "text",
-                readonly: true,
-                entity: "customers.name",
-              },
-              phone: {
-                label: "شماره تلفن",
-                type: "text",
-                readonly: true,
-                entity: "customers.phone",
-              },
-            },
+        detailPage: {
+          meta: {
+            new: "سرویس جدید",
+            edit: "تغییر اطلاعات سرویس",
+            view: "مشاهده اطلاعات سرویس",
           },
-          __main: {
-            label: "اطلاعات سرویس",
-            expanded: true,
-            fields: {
-              date: {
-                label: "تاریخ سرویس",
-                type: "date",
-              },
-              type: {
-                label: "نوع سرویس",
-                type: "text",
-              },
-              description: {
-                label: "شرح خدمات",
-                type: "text",
-              },
-              amount: {
-                label: " مبلغ دریافتی",
-                type: "text",
-              },
-              personel: {
-                label: "سرویسکار",
-                type: "text",
-              },
+          sections: [
+            {
+              entity: "customers",
+              view: "single",
+              fields: ["name"],
+              pageQty: 10,
             },
+            {
+              entity: "services",
+              fields: null,
+            },
+          ],
+        },
+        listPage: {
+          meta: {
+            header: "لیست سرویسها",
+            newBtnLable: "ایجاد سرویس جدید",
+            newBtnUrl: "entity/services/new",
+            itemUrlPrefix: "entity/services/",
           },
+          fields: [
+            { path: "date", lable: "تاریخ سرویس" },
+            { path: "customers.name", lable: "نام مشتری" },
+            { path: "type", lable: "نوع سرویس" },
+            { path: "description", lable: "شرح خدمات" },
+            { path: "amount", lable: " مبلغ دریافتی" },
+            { path: "personel", lable: "سرویسکار" },
+          ],
         },
       },
       customers: {
-        meta: {
-          title: {
-            new: "مشتری جدید",
-            edit: "تغییر اطلاعات مشتری",
-            list:"لیست مشتریان"
+        name: "customers",
+        schema: {
+          nextservicedate: { lable: "تاریخ سرویس بعدی", type: "date" },
+          name: { lable: "نام ", type: "text" },
+          phone: { lable: "شماره تلفن", type: "text" },
+          address: { lable: "آدرس", type: "textarea" },
+          referer: { lable: "معرف", type: "text" },
+          installationDate: { lable: "تاریخ نصب", type: "date" },
+          installer: { lable: "نام نصاب", type: "text" },
+          services: {
+            lable: "اطلاعات سرویسها",
+            type: "relation",
+            entity: "services",
           },
-          newbtn:{
-            label:"ایجاد مشتری جدید"
-          }
         },
-        sections: {
-          __main: {
-            label: "اطلاعات مشتری",
-            expanded: true,
-            fields: {
-              nextservicedate:{
-                label:"تاریخ سرویس بعدی",
-                type:"date",
-              },
-              name: {
-                label: "نام ",
-                type: "text",
-              },
-              phone: {
-                label: "شماره تلفن",
-                type: "text",
-              },
-              address: {
-                label: "آدرس",
-                type: "textarea",
-              },
-              referer: {
-                label: "معرف",
-                type: "text",
-              },
-              installationDate: {
-                label: "تاریخ نصب",
-                type: "date",
-              },
-              installer: {
-                label: "نام نصاب",
-                type: "text",
-              },
-            },
+        detailPage: {
+          meta: {
+            newLable: "مشتری جدید",
+            editLable: "تغییر اطلاعات مشتری",
+            viewLable: "مشاهده اطلاعات مشتری",
           },
+          sections: [
+            "customer",
+            {
+              lable: "اطلاعات سرویسها",
+              entity: "services",
+              view: "list",
+              pageQty: 10,
+              type: "relation",
+            },
+          ],
+        },
+        listPage: {
+          meta: {
+            header: "لیست مشتریان",
+            newBtnLable: "ایجاد مشتری جدید",
+            newBtnUrl: "/entity/customers/new",
+            itemUrlPrefix: "/entity/customers/",
+          },
+          fields: [
+            { path: "nextservicedate", lable: "تاریخ سرویس بعدی" },
+            { path: "name", lable: "نام" },
+            { path: "phone", lable: "شماره تلفن" },
+            { path: "address", lable: "آدرس" },
+            { path: "referer", lable: "معرف" },
+            { path: "installationDate", lable: "تاریخ نصب" },
+            { path: "installer", lable: "نام نصاب" },
+          ],
         },
       },
-      devices: {
-        meta: {
-          title: {
-            new: "دستگاه جدید",
-            edit: "تغییر اطلاعات دستگاه",
-            list:"لیست دستگاهها"
-          },
-          newbtn:{
-            label:"ایجاد دستگاه جدید"
-          }
-        },
-        sections: {
-          __main: {
-            label: "اطلاعات دستگاه",
-            expanded: true,
-            fields: {
-              name: {
-                label: "نام دستگاه ",
-                type: "text",
-              },
-              type: {
-                label: "نوع دستگاه",
-                type: "text",
-              },
-              description: {
-                label: "توضیحات",
-                type: "textarea",
-              },
-            },
-          },
-        },
-      },
+      // devices: {
+      //   meta: {
+      //     title: {
+      //       new: "دستگاه جدید",
+      //       edit: "تغییر اطلاعات دستگاه",
+      //       list: "لیست دستگاهها",
+      //     },
+      //     newbtn: {
+      //       lable: "ایجاد دستگاه جدید",
+      //     },
+      //   },
+      //   sections: {
+      //     __main: {
+      //       lable: "اطلاعات دستگاه",
+      //       expanded: true,
+      //       fields: {
+      //         name: {
+      //           lable: "نام دستگاه ",
+      //           type: "text",
+      //         },
+      //         type: {
+      //           lable: "نوع دستگاه",
+      //           type: "text",
+      //         },
+      //         description: {
+      //           lable: "توضیحات",
+      //           type: "textarea",
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
     },
   },
   router,

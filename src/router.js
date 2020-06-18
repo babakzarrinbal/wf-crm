@@ -1,7 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
 import dashboard from "./views/dashboard.vue";
-import entityList from "./views/entityList.vue";
+import customersList from "./views/customersList"
+import servicesList from "./views/servicesList"
+import customersEdit from "./views/customersEdit.vue";
 import entityEdit from "./views/entityEdit.vue";
 Vue.use(Router);
 var router = new Router({
@@ -10,16 +12,28 @@ var router = new Router({
       path: "/",
       name: "dashboard",
       component: dashboard,
-      // meta: { keepAlive: true },
+      meta: { keepAlive: true },
     },
     {
-      path: "/:entity",
-      name: "entityList",
-      component: entityList,
-      // meta: { keepAlive: true },
+      path: "/entity/customers",
+      name: "customersList",
+      component: customersList,
+      meta: { keepAlive: true },
     },
     {
-      path: "/:entity/:id",
+      path: "/entity/services",
+      name: "servicesList",
+      component: servicesList,
+      meta: { keepAlive: true },
+    },
+    {
+      path: "/entity/customers/:id",
+      name: "customersEdit",
+      component: customersEdit,
+      meta: { keepAlive: false },
+    },
+    {
+      path: "/entity/:entity/:id",
       name: "entityEdit",
       component: entityEdit,
       meta: { keepAlive: false },
