@@ -1,5 +1,4 @@
 'use strict'
-
 import { app, protocol, BrowserWindow } from 'electron'
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 
@@ -21,7 +20,7 @@ function createWindow () {
   win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
     nodeIntegration: true, webSecurity: false ,allowRunningInsecureContent:true
   } })
-
+  win.removeMenu();
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)

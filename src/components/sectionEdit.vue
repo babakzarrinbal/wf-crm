@@ -3,7 +3,7 @@
     class="group border border-secondary rounded p-2 pt-4 mt-4 position-relative"
     ref="section"
   >
-    <h5 class="sectiontitle clickable mb-3" @click="expanded = !expanded;">
+    <h5 class="sectiontitle clickable mb-3" @click="expanded = calcingHeight? expanded: !expanded;">
       {{lable}}
       <span
         class="arrow"
@@ -17,19 +17,51 @@
         v-if="expanded"
         :style="'overflow:hidden;max-height:'+(maxHeight||'auto')"
       >
+        <div v-if="showId && data.id" class="mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">شماره اشتراک</span>
+            <input
+              disabled="true"
+              type="text"
+              class="form-control rounded-left pr-3"
+              :value="(data.id)"
+            />
+          </div>
+        </div>
         <div class="field input-group mb-1" style="direction:rtl" v-for="(f,i) in fields" :key="i">
           <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">{{f.lable}}</span>
           </div>
           <input
-            v-if="['text','number','date'].includes(f.type)"
+            v-if="['text','number'].includes(f.type)"
             :disabled="type == 'view'"
             :type="f.type"
             class="form-control rounded-left"
             :placeholder="f.lable"
             v-model="data[i]"
           />
-          <textarea v-if="'textarea' == f.type" class="form-control"></textarea>
+          <DatePicker
+            v-if="f.type == 'date'"
+            class="form-control rounded-left p-0"
+            v-model="data[i]"
+            :disabled="type == 'view'"
+            :placeholder="f.lable"
+          />
+          <input
+            v-if="f.type =='checkbox'"
+            style="width:38px;height:38px;"
+            type="checkbox"
+            :disabled="type == 'view'"
+            v-model="data[i]"
+          />
+          <textarea
+            v-model="data[i]"
+            rows="3"
+            style="resize: none"
+            v-if="'textarea' == f.type"
+            :disabled="type == 'view'"
+            class="form-control"
+          ></textarea>
         </div>
       </div>
     </transition>
@@ -55,18 +87,25 @@
 }
 </style>
 <script>
+import DatePicker from "vue-persian-datetime-picker";
 export default {
   props: {
     lable: String,
     fields: Object,
     type: String,
-    data: {}
+    data: {},
+    showId: Boolean
+  },
+  components: {
+    DatePicker
   },
   data() {
-    return { expanded: true, maxHeight: 0 };
+    return { expanded: true, maxHeight: "auto", calcingHeight: false };
   },
   mounted() {
-    this.maxHeight = this.$refs.section.offsetHeight + "px";
+    setTimeout(() => {
+      this.maxHeight = this.$refs.section.offsetHeight + "px";
+    }, 500);
   }
 };
 </script>

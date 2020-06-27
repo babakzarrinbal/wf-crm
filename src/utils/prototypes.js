@@ -5,7 +5,20 @@ Number.prototype.round = function(digit) {
   let pow = window.Math.pow(10, digit);
   return window.Math.round(this * pow) / pow;
 };
+String.prototype.hashCode = function() {
+  var hash = 0;
+  if (this.length == 0) {
+      return hash;
+  }
+  for (var i = 0; i < this.length; i++) {
+      var char = this.charCodeAt(i);
+      hash = ((hash<<5)-hash)+char;
+      hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
 
+window.jmoment = require("moment-jalaali");
 // window.distanceinmath = (loc1, loc2, unit = "km") => {
 //   if (!loc1 || !loc2) return null;
 //   var p = 0.017453292519943295; // Math.PI / 180

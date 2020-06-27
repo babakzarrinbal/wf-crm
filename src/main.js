@@ -1,3 +1,14 @@
+
+ 
+ window.machineId = window.localStorage.getItem('machineId');
+ if(!window.machineId){
+   window.machineId = require('uniqid')();
+   if(process.env.IS_ELECTRON){
+    let {machineIdSync} =require('node-machine-id');
+    window.machineId = machineIdSync();
+  }
+  window.localStorage.setItem('machineId',window.machineId)
+ }
 // my own proto functions
 require("./utils/prototypes");
 // bootstrap css
@@ -7,9 +18,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./scss/globalstyle.scss";
 import "./scss/vue-transitions.scss";
 
+
 // fast click to disable touch delay
 var attachFastClick = require("fastclick");
 attachFastClick.attach(document.body);
+
+// toastr
+window.toastr = require("toastr");
+window.toastr.options.preventDuplicates = true;
+window.toastr.options.rtl=true;
+import "toastr/build/toastr.min.css";
 
 require("./serviceworker/registerServiceWorker");
 
@@ -34,6 +52,37 @@ Vue.mixin({
 Vue.config.productionTip = true;
 new Vue({
   data: {
+    schemas:{
+      services:{
+        customer: {
+          lable: "اطلاعات مشتری",
+          entity: "customers",
+          type: "relation",
+        },
+        serviceDate: { lable: "تاریخ سرویس", type: "date" },
+        type: { lable: "نوع سرویس", type: "text" },
+        description: { lable: "شرح خدمات", type: "textarea" },
+        amount: { lable: " مبلغ دریافتی", type: "number" },
+        personel: { lable: "سرویسکار", type: "text" },
+      },
+      customers:{
+        nextServiceDate: { lable: "تاریخ سرویس بعدی", type: "date" },
+        name: { lable: "نام ", type: "text" },
+        phone: { lable: "شماره تلفن", type: "text" },
+        address: { lable: "آدرس", type: "textarea" },
+        referer: { lable: "معرف", type: "text" },
+        installationDate: { lable: "تاریخ نصب", type: "date" },
+        installer: { lable: "نام نصاب", type: "text" },
+        deviceType: { lable: "نوع دستگاه", type: "text" },
+        deviceDesc: { lable: "توضیحات دستگاه", type: "textarea" },
+        active:{lable:'مشتری فعال',type:'checkbox'},
+        services: {
+          lable: "اطلاعات سرویسها",
+          type: "relation",
+          entity: "services",
+        },
+      }
+    },
     entities: {
       services: {
         schema: {
@@ -42,131 +91,32 @@ new Vue({
             entity: "customers",
             type: "relation",
           },
-          date: { lable: "تاریخ سرویس", type: "date" },
+          serviceDate: { lable: "تاریخ سرویس", type: "date" },
           type: { lable: "نوع سرویس", type: "text" },
-          description: { lable: "شرح خدمات", type: "text" },
-          amount: { lable: " مبلغ دریافتی", type: "text" },
+          description: { lable: "شرح خدمات", type: "textarea" },
+          amount: { lable: " مبلغ دریافتی", type: "number" },
           personel: { lable: "سرویسکار", type: "text" },
-        },
-        detailPage: {
-          meta: {
-            new: "سرویس جدید",
-            edit: "تغییر اطلاعات سرویس",
-            view: "مشاهده اطلاعات سرویس",
-          },
-          sections: [
-            {
-              entity: "customers",
-              view: "single",
-              fields: ["name"],
-              pageQty: 10,
-            },
-            {
-              entity: "services",
-              fields: null,
-            },
-          ],
-        },
-        listPage: {
-          meta: {
-            header: "لیست سرویسها",
-            newBtnLable: "ایجاد سرویس جدید",
-            newBtnUrl: "entity/services/new",
-            itemUrlPrefix: "entity/services/",
-          },
-          fields: [
-            { path: "date", lable: "تاریخ سرویس" },
-            { path: "customers.name", lable: "نام مشتری" },
-            { path: "type", lable: "نوع سرویس" },
-            { path: "description", lable: "شرح خدمات" },
-            { path: "amount", lable: " مبلغ دریافتی" },
-            { path: "personel", lable: "سرویسکار" },
-          ],
         },
       },
       customers: {
-        name: "customers",
         schema: {
-          nextservicedate: { lable: "تاریخ سرویس بعدی", type: "date" },
+          nextServiceDate: { lable: "تاریخ سرویس بعدی", type: "date" },
           name: { lable: "نام ", type: "text" },
           phone: { lable: "شماره تلفن", type: "text" },
           address: { lable: "آدرس", type: "textarea" },
           referer: { lable: "معرف", type: "text" },
           installationDate: { lable: "تاریخ نصب", type: "date" },
           installer: { lable: "نام نصاب", type: "text" },
+          deviceType: { lable: "نوع دستگاه", type: "text" },
+          deviceDesc: { lable: "توضیحات دستگاه", type: "textarea" },
+          
           services: {
             lable: "اطلاعات سرویسها",
             type: "relation",
             entity: "services",
           },
-        },
-        detailPage: {
-          meta: {
-            newLable: "مشتری جدید",
-            editLable: "تغییر اطلاعات مشتری",
-            viewLable: "مشاهده اطلاعات مشتری",
-          },
-          sections: [
-            "customer",
-            {
-              lable: "اطلاعات سرویسها",
-              entity: "services",
-              view: "list",
-              pageQty: 10,
-              type: "relation",
-            },
-          ],
-        },
-        listPage: {
-          meta: {
-            header: "لیست مشتریان",
-            newBtnLable: "ایجاد مشتری جدید",
-            newBtnUrl: "/entity/customers/new",
-            itemUrlPrefix: "/entity/customers/",
-          },
-          fields: [
-            { path: "nextservicedate", lable: "تاریخ سرویس بعدی" },
-            { path: "name", lable: "نام" },
-            { path: "phone", lable: "شماره تلفن" },
-            { path: "address", lable: "آدرس" },
-            { path: "referer", lable: "معرف" },
-            { path: "installationDate", lable: "تاریخ نصب" },
-            { path: "installer", lable: "نام نصاب" },
-          ],
-        },
+        }
       },
-      // devices: {
-      //   meta: {
-      //     title: {
-      //       new: "دستگاه جدید",
-      //       edit: "تغییر اطلاعات دستگاه",
-      //       list: "لیست دستگاهها",
-      //     },
-      //     newbtn: {
-      //       lable: "ایجاد دستگاه جدید",
-      //     },
-      //   },
-      //   sections: {
-      //     __main: {
-      //       lable: "اطلاعات دستگاه",
-      //       expanded: true,
-      //       fields: {
-      //         name: {
-      //           lable: "نام دستگاه ",
-      //           type: "text",
-      //         },
-      //         type: {
-      //           lable: "نوع دستگاه",
-      //           type: "text",
-      //         },
-      //         description: {
-      //           lable: "توضیحات",
-      //           type: "textarea",
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
     },
   },
   router,

@@ -5,6 +5,7 @@
       :searchEnabled="true"
       @search="searching"
       :newBtn="{text:'ایجاد مشتری جدید'}"
+      itemUrlPrefix="/entity/customers/"
       :fields="fields"
       :data="data"
       :moreBtn="moreBtn"
@@ -30,7 +31,7 @@ export default {
           {}
         ),
       query: {
-        active:true,
+        active:false,
         searchFields: ["name", "phone", "id"],
         start: 0,
         end: pageQty

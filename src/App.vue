@@ -1,40 +1,54 @@
 <template>
-  <div id="app" style="widht:100vw;height:100%;" @drop="createNewJson($event.dataTransfer.files)">
-    
-    <Header id="header" @openMenu="expandSettings = !expandSettings" />
-    <div class="body">
-      <transition name="width">
-        <div class="sidebar" v-if="expandSettings">
-          <ul class="list">
-            <router-link
-              v-for="(path,title) in {
+  <div style="widht:100vw;height:100%;" @drop="createNewJson($event.dataTransfer.files)">
+    <div
+      class="locpage w-100 h-100 d-flex justify-content-center flex-column align-items-center p-5"
+      v-if="locked"
+    >
+    <div class="">{{machineId}}</div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="basic-addon1">کد فعالسازی</span>
+        </div>
+        <input type="text" v-model="activationCode" class="form-control" placeholder="کد فعالسازی" />
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="button" @click="activation">اعمال کد</button>
+        </div>
+      </div>
+    </div>
+    <div v-else id="app" style="widht:100vw;height:100%;">
+      <Header id="header" @openMenu="expandSettings = !expandSettings" />
+      <div class="body">
+        <transition name="width">
+          <div class="sidebar" v-if="expandSettings">
+            <ul class="list">
+              <router-link
+                v-for="(path,title) in {
                 'داشبرد':'/',
                 'مشتریان':'/entity/customers',
                 'سرویسها':'/entity/services',
-                'دستگاه‌ها':'/entity/devices',
-                'فیلتر‌ها': '/entity/filters'
+                'مشتریان غیرفعال':'/entity/inactivecustomers',
                 }"
-              :key="path"
-              @click.stop
-              :to="path"
-              tag="li"
-              class="pr-1 listItem"
-            >{{title}}</router-link>
-          </ul>
+                :key="path"
+                @click.stop
+                :to="path"
+                tag="li"
+                class="pr-1 listItem"
+              >{{title}}</router-link>
+            </ul>
+          </div>
+        </transition>
+        <div class="maincontent">
+          <keep-alive>
+            <transition name="fade-fast" mode="out-in">
+              <router-view id="pagecontainer" class="mainrouteview" />
+            </transition>
+          </keep-alive>
         </div>
-      </transition>
-      <div class="maincontent">
-        <keep-alive>
-          <transition name="fade-fast" mode="out-in">
-          <router-view id="pagecontainer" class="mainrouteview" />
-          </transition>
-        </keep-alive>
       </div>
-      
+      <transition name="fade">
+        <popup v-if="popup.visible" @hide="popup.visible = false" :args="popup.args" />
+      </transition>
     </div>
-    <transition name="fade">
-    <popup v-if="popup.visible" @hide="popup.visible = false" :args="popup.args" />
-    </transition>
   </div>
 </template>
 <script>
@@ -42,28 +56,40 @@ import Header from "./components/header";
 import popup from "./components/popup";
 export default {
   data() {
+  let activationcode = window.localStorage.getItem("activationPassId");
     return {
-      popup:{
-        visible:false,
-        args:{}
+      machineId:window.machineId,
+      locked: (window.machineId||"").hashCode() != activationcode,
+      activationCode:window.localStorage.getItem("activationPassId"),
+      popup: {
+        visible: false,
+        args: {}
       },
       expandSettings: true
     };
   },
   components: {
     Header,
-    popup,
+    popup
   },
   async created() {
-    this.on('popup',(args)=>{
+    this.on("popup", args => {
       this.popup.visible = true;
-      this.popup.args = JSON.parse(JSON.stringify(args))
+      this.popup.args = JSON.parse(JSON.stringify(args));
     });
   },
   methods: {
+    activation(){
+      // window.localStorage.getItem("password") != window.machineId
+
+      if(this.activationCode != window.machineId.hashCode()) return window.toastr.error('کد فعالسازی غلط است');
+       window.localStorage.setItem("activationPassId",this.activationCode);
+       this.locked = false
+
+    }
   },
   watch: {
-    popup: { deep: true ,handler(){}}
+    popup: { deep: true, handler() {} }
   },
   computed: {}
 };
@@ -88,12 +114,16 @@ export default {
   justify-content: stretch;
   height: calc(100% - 30px);
   .sidebar {
+    flex-shrink: 0;
     width: 200px;
     background-color: #7676fc;
+    .listItem{
+      white-space: nowrap;
+    }
   }
   .maincontent {
     flex-grow: 1;
-    overflow:auto;
+    overflow: scroll;
   }
 }
 #nav {

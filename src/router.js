@@ -2,9 +2,10 @@ import Vue from "vue";
 import Router from "vue-router";
 import dashboard from "./views/dashboard.vue";
 import customersList from "./views/customersList"
+import InactiveCustomersList from "./views/InactiveCustomersList.vue"
 import servicesList from "./views/servicesList"
-import customersEdit from "./views/customersEdit.vue";
-import entityEdit from "./views/entityEdit.vue";
+import customerEdit from "./views/customerEdit.vue";
+import serviceEdit from "./views/serviceEdit.vue";
 Vue.use(Router);
 var router = new Router({
   routes: [
@@ -21,6 +22,12 @@ var router = new Router({
       meta: { keepAlive: true },
     },
     {
+      path: "/entity/inactivecustomers",
+      name: "inactiveCustomersList",
+      component: InactiveCustomersList,
+      meta: { keepAlive: true },
+    },
+    {
       path: "/entity/services",
       name: "servicesList",
       component: servicesList,
@@ -28,14 +35,14 @@ var router = new Router({
     },
     {
       path: "/entity/customers/:id",
-      name: "customersEdit",
-      component: customersEdit,
+      name: "customerEdit",
+      component: customerEdit,
       meta: { keepAlive: false },
     },
     {
-      path: "/entity/:entity/:id",
-      name: "entityEdit",
-      component: entityEdit,
+      path: "/entity/services/:id/:cid?",
+      name: "serviceEdit",
+      component: serviceEdit,
       meta: { keepAlive: false },
     },
   ],

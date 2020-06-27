@@ -1,7 +1,7 @@
 <template>
   <div style="height:100%;overflow:auto">
-     <h2 class="pt-2" v-if="entity.listPage.meta.header">{{entity.listPage.meta.header}}</h2>
-    <entityList :meta="entity.listPage.meta" :fields="entity.listPage.fields" :data="data" />
+    <h2 class="pt-2">لیست سرویس‌ها</h2>
+    <entityList :fields="fields" :data="data" :moreBtn="moreBtn" @more="getData()"/>
   </div>
 </template>
 <style>
@@ -10,93 +10,43 @@
 import entityList from "@/components/entityList.vue";
 export default {
   data() {
+    let servcieSchema = this.$root.schemas.services;
+    let pageQty = 50;
     return {
-      entity:this.$root.entities.services,
-      data: [
-          {
-            date: "1399/1/1",
-            "customers.name":"تست",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          },
-          {
-            date: "1399/1/1",
-            type: "نوع سرویس تستی",
-            description: "توضیحات تستی",
-            amount: 1000000,
-            personel: "نام سرویسکار تستی"
-          }
-        ]
+      data: [],
+      fields: {
+        "customers.name": { lable: "نام مشتری" },
+        ...Object.keys(servcieSchema)
+          .filter(r => servcieSchema[r].type != "relation")
+          .reduce((cu, c) => ((cu[c] = servcieSchema[c]), cu), {})
+      },
+      query: {
+        start: 0,
+        end: pageQty,
+        populate: "customers"
+      },
+      moreBtn: false,
+      pageQty
     };
   },
   components: {
     entityList
   },
+  created() {
+    this.getData(true);
+  },
+  methods: {
+    getData(fresh) {
+      this.query.start = fresh ? 0 : this.query.start + this.pageQty;
+      this.query.end = fresh ? this.pageQty : this.query.end + this.pageQty;
+      this.data = fresh ? [] : this.data;
+      this.dataCenter.getList("services", this.query).then(d => {
+        this.data.push(...d);
+        this.moreBtn = d.length == this.pageQty;
+        this.$forceUpdate();
+      });
+    }
+  }
 };
 </script>
 
